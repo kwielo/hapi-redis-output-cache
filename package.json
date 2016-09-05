@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/ArnoldZokas/hapi-redis-output-cache",
   "dependencies": {
-    "joi": "^8.4.2",
+    "joi": "^9.0.4",
     "redis": "^2.6.2",
     "underscore": "^1.8.3"
   },
