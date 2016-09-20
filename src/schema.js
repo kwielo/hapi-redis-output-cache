@@ -7,6 +7,7 @@ module.exports = {
     port: joi.number().min(1),
     partition: joi.string(),
     varyByHeaders: joi.array(),
+    varyByCustomRequestValues: joi.array(),
     staleIn: joi.number().min(1).required(),
     expiresIn: joi.number().min(1).required(),
     onCacheMiss: joi.func()

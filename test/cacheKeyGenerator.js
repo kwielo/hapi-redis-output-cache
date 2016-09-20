@@ -4,9 +4,15 @@ const expect    = require('expect.js');
 const generator = require('../src/cacheKeyGenerator');
 
 describe('cacheKeyGenerator', () => {
-    describe('given custom partition and varyByHeaders', () => {
+    describe('given custom partition, varyByHeaders, and varyByCustomRequestValues', () => {
         it('should generate cache key with custom partition, method, path and filtered headers', () => {
             const req = {
+                auth: {
+                    credentials: {
+                      userId: 1,
+                      roleName: 'USER'
+                    }
+                },
                 route: {
                     method: 'get'
                 },
@@ -29,10 +35,11 @@ describe('cacheKeyGenerator', () => {
 
             const options = {
                 partition: 'test',
-                varyByHeaders: ['Accept', 'accept-language', 'accept-encoding']
+                varyByHeaders: ['Accept', 'accept-language', 'accept-encoding'],
+                varyByCustomRequestValues: ['auth.credentials.userId']
             };
 
-            expect(generator.generateCacheKey(req, options)).to.equal('test|get|/resource?C=3&a=1&b=2&|accept=text/html|accept-language=en-au,en-us,en');
+            expect(generator.generateCacheKey(req, options)).to.equal('test|get|/resource?C=3&a=1&b=2&|accept=text/html|accept-language=en-au,en-us,en|auth.credentials.userId=1');
         });
     });
 
@@ -79,4 +86,5 @@ describe('cacheKeyGenerator', () => {
             expect(generator.generateCacheKey(req, options)).to.equal('test|get|/resource');
         });
     });
+
 });

@@ -1,9 +1,9 @@
 # hapi-redis-output-cache
+> **This is a fork of [ArnoldZokas/hapi-redis-output-cache](https://github.com/ArnoldZokas/hapi-redis-output-cache)**
+
+---
+
 > Redis-backed output cache plugin for Hapi
-
-[![Build Status](https://semaphoreci.com/api/v1/ArnoldZokas/hapi-redis-output-cache/branches/master/shields_badge.svg)](https://semaphoreci.com/ArnoldZokas/hapi-redis-output-cache)[![Dependency Status](https://david-dm.org/ArnoldZokas/hapi-redis-output-cache.svg)](https://david-dm.org/ArnoldZokas/hapi-redis-output-cache) [![NPM version](https://badge.fury.io/js/hapi-redis-output-cache.svg)](http://badge.fury.io/js/hapi-redis-output-cache)
-
-[![NPM](https://nodei.co/npm/hapi-redis-output-cache.png?downloads=true&stars=true)](https://nodei.co/npm/hapi-redis-output-cache)
 
 ## Usage
 ```
@@ -36,6 +36,7 @@ server.register([
 - **host** - hostname or IP address of the Redis server
 - **port** - *(optional)* port of the Redis server; defaults to 6379
 - **varyByHeaders** - *(optional)* an array of headers to be used for generating cache key; defaults no none
+- **varyByRequestCustomVariables** - *(optional)* an array of paths (for ex.:`auth.credentials.userId`) that will be used for generating cache key; only strings and numbers allowed as values; defaults to none
 - **partition** - *(optional)* string to prefix cache keys with, useful for shared redis instances
 - **staleIn** - number of seconds until the cached response will be considered stale and marked for regeneration
 - **expiresIn** - number of seconds until the cached response will be purged from Redis
