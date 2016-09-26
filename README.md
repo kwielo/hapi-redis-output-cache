@@ -36,7 +36,6 @@ server.register([
 - **host** - hostname or IP address of the Redis server
 - **port** - *(optional)* port of the Redis server; defaults to 6379
 - **varyByHeaders** - *(optional)* an array of headers to be used for generating cache key; defaults no none
-- **varyByRequestCustomVariables** - *(optional)* an array of paths (for ex.:`auth.credentials.userId`) that will be used for generating cache key; only strings and numbers allowed as values; defaults to none
 - **partition** - *(optional)* string to prefix cache keys with, useful for shared redis instances
 - **staleIn** - number of seconds until the cached response will be considered stale and marked for regeneration
 - **expiresIn** - number of seconds until the cached response will be purged from Redis
@@ -63,12 +62,36 @@ server.route({
 });
 ```
 
+To add additional variable as a cache key customizer add an array of paths to route settings (only strings and numbers allowed as values), paths should relate to `request` object:
+
+```
+server.route({
+    method: 'GET',
+    path: '/',
+    handler: function (request, reply) {
+        return reply('hello world');
+    },
+    config: {
+        plugins: {
+            'hapi-redis-output-cache': {
+                isCacheable: true,
+                customVariables: ['auth.credentials.userId']
+            }
+        }
+    }
+});
+```
+
+
 ## Miscellaneous
 Output cache metadata is injected into each request and can be access via `req.outputCache`:
 - **isStale**: boolean value indicating whether the cache is stale
 - **data**: object representing cached response (available even when stale)
 
 ## Release History
+- **v3.1.0** (2016-09-26)
+    - introduced `customVariables` that allows to customize the cache key
+    - updated `joi` to version 9.0.4
 - **v3.0.0** (2015-07-11)
     - breaking changes:
         - require node >4

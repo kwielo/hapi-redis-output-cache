@@ -4,7 +4,7 @@ const expect    = require('expect.js');
 const generator = require('../src/cacheKeyGenerator');
 
 describe('cacheKeyGenerator', () => {
-    describe('given custom partition, varyByHeaders, and varyByCustomRequestValues', () => {
+    describe('given custom partition, varyByHeaders, and customVariables', () => {
         it('should generate cache key with custom partition, method, path and filtered headers', () => {
             const req = {
                 auth: {
@@ -35,11 +35,12 @@ describe('cacheKeyGenerator', () => {
 
             const options = {
                 partition: 'test',
-                varyByHeaders: ['Accept', 'accept-language', 'accept-encoding'],
-                varyByCustomRequestValues: ['auth.credentials.userId']
+                varyByHeaders: ['Accept', 'accept-language', 'accept-encoding']
             };
 
-            expect(generator.generateCacheKey(req, options)).to.equal('test|get|/resource?C=3&a=1&b=2&|accept=text/html|accept-language=en-au,en-us,en|auth.credentials.userId=1');
+            const customVariables = ['auth.credentials.userId'];
+
+            expect(generator.generateCacheKey(req, options, customVariables)).to.equal('test|get|/resource?C=3&a=1&b=2&|accept=text/html|accept-language=en-au,en-us,en|auth.credentials.userId=1');
         });
     });
 

@@ -31,6 +31,7 @@ exports.register = function (plugin, options, next) {
 
     plugin.ext('onPreHandler', (req, reply) => {
         const routeOptions = req.route.settings.plugins['hapi-redis-output-cache'] || {};
+        const cacheCustomVariables = routeOptions.customVariables || [];
         if(routeOptions.isCacheable !== true) {
             return reply.continue();
         }
@@ -39,8 +40,7 @@ exports.register = function (plugin, options, next) {
             return reply.continue();
         }
 
-        const cacheKey = cacheKeyGenerator.generateCacheKey(req, options);
-
+        const cacheKey = cacheKeyGenerator.generateCacheKey(req, options, cacheCustomVariables);
         if(client.connected) {
             try {
                 client.get(cacheKey, (err, data) => {
@@ -88,6 +88,7 @@ exports.register = function (plugin, options, next) {
 
     plugin.ext('onPreResponse', (req, reply) => {
         const routeOptions = req.route.settings.plugins['hapi-redis-output-cache'] || {};
+        const cacheCustomVariables = routeOptions.customVariables || [];
         if(routeOptions.isCacheable !== true) {
             return reply.continue();
         }
@@ -117,7 +118,7 @@ exports.register = function (plugin, options, next) {
             return reply.continue();
         }
 
-        const cacheKey = cacheKeyGenerator.generateCacheKey(req, options);
+        const cacheKey = cacheKeyGenerator.generateCacheKey(req, options, cacheCustomVariables);
 
         const cacheValue = {
             statusCode: req.response.statusCode,

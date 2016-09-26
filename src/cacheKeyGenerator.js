@@ -50,33 +50,33 @@ const normaliseHeaders = (rawRequestHeaders, varyByHeaders) => {
     return filteredHeaders.join('|');
 };
 
-const normaliseCustomVariables = (rawRequest, varyByCustomRequestValues) => {
-    if (!varyByCustomRequestValues) {
+const normaliseCustomVariables = (request, customVariables) => {
+    if (!customVariables) {
         return null;
     }
 
     const variables = _
-        .chain(varyByCustomRequestValues)
+        .chain(customVariables)
         .map(customRequestValuesPath => ({
           key: customRequestValuesPath,
-          value: _.get(rawRequest, customRequestValuesPath, null)
+          value: _.get(request, customRequestValuesPath, null)
         }))
         .reject(variable => variable.value === null)
         .filter(variable => (_.isString(variable.value) || _.isNumber(variable.value)))
         .map(customVariable => (`${customVariable.key}=${_.toLower(customVariable.value)}`))
         .value();
-
+        
     return variables.join('|');
 };
 
 module.exports = {
-  generateCacheKey: (req, options) => {
-      const partition = options.partition || 'default';
-      const method    = req.route.method.toLowerCase();
-      const path      = normaliseUrl(req.url);
-      const headers   = normaliseHeaders(req.headers, options.varyByHeaders);
-      const variables = normaliseCustomVariables(req, options.varyByCustomRequestValues);
+    generateCacheKey: (req, options, customVariables) => {
+        const partition = options.partition || 'default';
+        const method    = req.route.method.toLowerCase();
+        const path      = normaliseUrl(req.url);
+        const headers   = normaliseHeaders(req.headers, options.varyByHeaders);
+        const variables = normaliseCustomVariables(req, customVariables);
 
-      return _.compact([partition, method, path, headers, variables]).join('|');
-  }
+        return _.compact([partition, method, path, headers, variables]).join('|');
+    }
 };

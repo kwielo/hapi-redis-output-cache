@@ -1,7 +1,13 @@
 'use strict';
 
+const getProp               = require('lodash').get;
 const cacheKeyGenerator = require('../src/cacheKeyGenerator');
 const redis             = require('redis').createClient(1234, '127.0.0.1');
+
+const getCacheKey = function (req) {
+    const customVariables = getProp(req, 'route.settings.plugins.hapi-redis-output-cache.customVariables', []);
+    return cacheKeyGenerator.generateCacheKey(req, { partition: 'test' }, customVariables);
+};
 
 module.exports = {
     reset: seedValue => {
@@ -16,7 +22,8 @@ module.exports = {
         }
     },
     ttl: (req, next) => {
-        const key = cacheKeyGenerator.generateCacheKey(req, { partition: 'test' });
+
+        const key = getCacheKey(req);
 
         redis.ttl(key, (err, reply) => {
             if (err) {
@@ -27,7 +34,8 @@ module.exports = {
         });
     },
     get: (req, next) => {
-        const key = cacheKeyGenerator.generateCacheKey(req, { partition: 'test' });
+
+        const key = getCacheKey(req);
 
         redis.get(key, (err, reply) => {
             if (err) {
