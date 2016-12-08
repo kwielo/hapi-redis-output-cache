@@ -63,6 +63,38 @@ module.exports = (options, next) => {
         }
     });
 
+    server.register(require('hapi-auth-basic'));
+    const users = {
+        a: {userId: 1}, b: {userId: 2}
+    };
+    const validate = function (req, username, password, cb) {
+        const user = users[username];
+        if (!user) {
+            cb(null, false);
+        }
+        cb(null, true, user)
+    };
+    server.auth.strategy('simple', 'basic', { validateFunc: validate });
+    server.route({
+        method: "GET",
+        path: "/cacheable-successful-request-with-custom-var/{id}",
+        config: {
+            auth: 'simple',
+            handler: (req, reply) => {
+                reply({
+                    test: true,
+                    userId: req.auth.credentials.userId
+                }).header('Content-Language', 'pl-PL');
+            },
+            plugins: {
+                'hapi-redis-output-cache': {
+                    isCacheable: true,
+                    customCacheKeys: ['auth.credentials.userId']
+                }
+            }
+        }
+    });
+
     server.register([
         {
             register: require('../index'),

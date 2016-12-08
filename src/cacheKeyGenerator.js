@@ -1,6 +1,6 @@
 'use strict';
 
-const _ = require('underscore');
+const _ = require('lodash');
 
 const lowerCase = array => {
     const result = [];
@@ -50,13 +50,32 @@ const normaliseHeaders = (rawRequestHeaders, varyByHeaders) => {
     return filteredHeaders.join('|');
 };
 
-module.exports = {
-  generateCacheKey: (req, options) => {
-      const partition = options.partition || 'default';
-      const method    = req.route.method.toLowerCase();
-      const path      = normaliseUrl(req.url);
-      const headers   = normaliseHeaders(req.headers, options.varyByHeaders);
+const normaliseCustomCacheKeys = (request, customCacheKeys) => {
+    if (!customCacheKeys) {
+        return null;
+    }
 
-      return _.compact([partition, method, path, headers]).join('|');
-  }
+    return _
+        .chain(customCacheKeys)
+        .map(customCacheKey => ({
+          key: customCacheKey,
+          value: _.get(request, customCacheKey, null)
+        }))
+        .reject(variable => variable.value === null)
+        .filter(variable => (_.isString(variable.value) || _.isNumber(variable.value)))
+        .map(customVariable => (`${customVariable.key}=${_.toLower(customVariable.value)}`))
+        .join('|')
+        .value();
+};
+
+module.exports = {
+    generateCacheKey: (req, options, customCacheKeys) => {
+        const partition = options.partition || 'default';
+        const method    = req.route.method.toLowerCase();
+        const path      = normaliseUrl(req.url);
+        const headers   = normaliseHeaders(req.headers, options.varyByHeaders);
+        const custom    = normaliseCustomCacheKeys(req, customCacheKeys);
+
+        return _.compact([partition, method, path, headers, custom]).join('|');
+    }
 };
